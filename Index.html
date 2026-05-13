@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiko World</title>
+    <style>
+        body {
+            background-color: #0a0a0a; /* أسود عميق */
+            color: #d4af37; /* ذهبي ملكي */
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            border: 2px solid #d4af37;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+        .tap-btn {
+            background: radial-gradient(circle, #d4af37 0%, #8a6d3b 100%);
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TIKO WORLD</h1>
+        <div id="score" style="font-size: 2rem; margin: 20px;">Coins: 0</div>
+        <button class="tap-btn" onclick="tap()"></button>
+    </div>
+    <script>
+        let count = 0;
+        function tap() {
+            count++;
+            document.getElementById('score').innerText = "Coins: " + count;
+        }
+    </script>
+</body>
+</html>
