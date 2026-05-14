@@ -6,111 +6,77 @@
     <title>TIKO WORLD | تيكو وورلد</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --gold: #D4AF37; --bg: #0d0d0d; --card: #1a1a1a; --green: #00ff88; }
-        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none; }
-
-        /* Header */
-        .header { display: flex; justify-content: space-around; padding: 15px; background: linear-gradient(to bottom, #1a1a1a, #0d0d0d); border-bottom: 1px solid #333; }
-        .header-item { background: var(--card); border: 1px solid var(--gold); border-radius: 12px; padding: 10px; flex: 1; text-align: center; margin: 0 5px; color: var(--gold); font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-
-        /* Main Content */
-        .content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow-y: auto; padding-bottom: 80px; }
-        
-        /* Game View */
+        :root { --gold: #D4AF37; --bg: #0d0d0d; --card: #1a1a1a; }
+        body { background-color: var(--bg); color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none; }
+        .header { display: flex; justify-content: space-around; padding: 15px; background: #111; border-bottom: 1px solid #333; }
+        .header-item { background: var(--card); border: 1px solid var(--gold); border-radius: 12px; padding: 10px; flex: 1; text-align: center; margin: 0 5px; color: var(--gold); font-weight: bold; }
+        .content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         #game-view { display: flex; flex-direction: column; align-items: center; width: 100%; }
-        .score-container { text-align: center; margin-bottom: 30px; }
-        .score-title { font-size: 50px; font-weight: bold; color: var(--gold); text-shadow: 0 0 20px rgba(212, 175, 55, 0.5); margin: 0; }
-        .rabbit-wrapper { position: relative; width: 220px; height: 220px; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(212,175,55,0.2) 0%, transparent 70%); border-radius: 50%; }
-        .rabbit-main { width: 100%; cursor: pointer; transition: transform 0.1s ease; filter: drop-shadow(0 0 20px var(--gold)); }
-        .rabbit-main:active { transform: scale(0.95); }
-
-        /* Tasks View */
-        #tasks-view { display: none; width: 100%; padding: 20px; box-sizing: border-box; }
-        .task-card { background: var(--card); border-radius: 15px; padding: 18px; margin-bottom: 12px; border-right: 5px solid var(--gold); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .task-info b { display: block; color: var(--gold); font-size: 16px; }
-        .task-info span { font-size: 12px; color: #aaa; }
-        .task-btn { background: var(--gold); color: black; border: none; border-radius: 10px; padding: 8px 15px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .task-btn:active { background: #b8962d; }
-
-        /* Navigation Bar */
-        .nav-bar { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-around; background: #111; padding: 12px 0; border-top: 2px solid var(--gold); box-shadow: 0 -5px 20px rgba(0,0,0,0.8); z-index: 100; }
-        .nav-btn { text-align: center; color: #777; font-size: 12px; flex: 1; cursor: pointer; transition: 0.3s; }
-        .nav-btn i { font-size: 24px; display: block; margin-bottom: 4px; }
-        .nav-btn.active { color: var(--gold); filter: drop-shadow(0 0 5px var(--gold)); }
-
-        /* Animations */
-        @keyframes floatText { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
-        .tap-anim { position: absolute; color: var(--gold); font-weight: bold; font-size: 24px; pointer-events: none; animation: floatText 0.6s ease-out forwards; z-index: 50; }
+        .score-title { font-size: 60px; font-weight: bold; color: var(--gold); text-shadow: 0 0 20px rgba(212, 175, 55, 0.5); margin: 10px 0; }
+        .rabbit-main { width: 200px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 0 15px var(--gold)); }
+        .rabbit-main:active { transform: scale(0.92); }
+        #tasks-view { display: none; width: 100%; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        .task-card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 10px; border-right: 5px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
+        .task-btn { background: var(--gold); color: black; border: none; border-radius: 8px; padding: 8px 15px; font-weight: bold; cursor: pointer; }
+        .nav-bar { display: flex; justify-content: space-around; background: #000; padding: 15px 0; border-top: 2px solid var(--gold); }
+        .nav-btn { text-align: center; color: #666; font-size: 12px; flex: 1; cursor: pointer; }
+        .nav-btn.active { color: var(--gold); }
+        .tap-anim { position: absolute; color: var(--gold); font-weight: bold; font-size: 26px; pointer-events: none; animation: fadeUp 0.6s ease-out forwards; }
+        @keyframes fadeUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="header-item">الترتيب: <span id="rank">#120</span></div>
+        <div class="header-item">الترتيب: #120</div>
         <div class="header-item">الجزر: <span id="carrots">0</span> 🥕</div>
     </div>
 
     <div class="content">
-        <!-- Game Section -->
         <div id="game-view">
-            <div class="score-container">
-                <p style="color: #888; margin: 0; font-size: 14px;">رصيد TIKO الخاص بك</p>
-                <h1 class="score-title" id="tiko-val">0</h1>
-            </div>
-            <div class="rabbit-wrapper" id="click-area">
-                <img src="https://i.ibb.co/3ykYmXn/rabbit-head.png" class="rabbit-main" id="tap-rabbit" alt="Tiko Rabbit">
-            </div>
+            <p style="color: #888; margin: 0;">رصيد TIKO الخاص بك</p>
+            <h1 class="score-title" id="tiko-val">0</h1>
+            <!-- رابط صورة جديد وموثوق -->
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Tiko&backgroundColor=ffd700" class="rabbit-main" id="tap-rabbit" alt="Tiko">
         </div>
 
-        <!-- Tasks Section -->
         <div id="tasks-view">
-            <h2 style="color: var(--gold); text-align: center; margin-bottom: 20px;">المهام الملكية 👑</h2>
-            
+            <h2 style="color: var(--gold); text-align: center;">المهام اليومية</h2>
             <div class="task-card">
-                <div class="task-info"><b>تابعني على TikTok</b><span>اربح +1,000 TIKO</span></div>
+                <div><b>TikTok</b><br><small>+1,000 TIKO</small></div>
                 <button class="task-btn" onclick="openTask('https://tiktok.com', 1000)">ابدأ</button>
             </div>
-
             <div class="task-card">
-                <div class="task-info"><b>قناة التوصيات الرسمية</b><span>اربح +500 TIKO</span></div>
+                <div><b>Telegram</b><br><small>+500 TIKO</small></div>
                 <button class="task-btn" onclick="openTask('https://t.me', 500)">انضم</button>
-            </div>
-
-            <div class="task-card">
-                <div class="task-info"><b>Binance Square</b><span>اربح +300 TIKO</span></div>
-                <button class="task-btn" onclick="openTask('https://binance.com', 300)">تابع</button>
             </div>
         </div>
     </div>
 
     <div class="nav-bar">
-        <div class="nav-btn active" onclick="showTab('game', this)"><i>🎮</i>الرئيسية</div>
-        <div class="nav-btn" onclick="showTab('tasks', this)"><i>📋</i>المهام</div>
-        <div class="nav-btn"><i>🔄</i>تبادل</div>
-        <div class="nav-btn"><i>📢</i>إعلانات</div>
+        <div class="nav-btn active" onclick="showTab('game', this)">🏠<br>الرئيسية</div>
+        <div class="nav-btn" onclick="showTab('tasks', this)">📋<br>المهام</div>
+        <div class="nav-btn">🔄<br>تبادل</div>
+        <div class="nav-btn">📢<br>إعلانات</div>
     </div>
 
     <script>
-        let score = parseInt(localStorage.getItem('tiko_total_score')) || 0;
+        let score = parseInt(localStorage.getItem('tiko_score')) || 0;
         const webapp = window.Telegram.WebApp;
         webapp.expand();
 
         function updateUI() {
             document.getElementById('tiko-val').innerText = score.toLocaleString();
-            document.getElementById('carrots').innerText = Math.floor(score / 10).toLocaleString();
-            localStorage.setItem('tiko_total_score', score);
+            document.getElementById('carrots').innerText = Math.floor(score / 10);
+            localStorage.setItem('tiko_score', score);
         }
 
-        // Click Logic
-        document.getElementById('click-area').addEventListener('touchstart', (e) => {
+        document.getElementById('tap-rabbit').addEventListener('touchstart', (e) => {
             e.preventDefault();
-            score += 1; // زيادة النقاط لكل نقرة
+            score++;
             updateUI();
-            
-            // Haptic Feedback
             if(webapp.HapticFeedback) webapp.HapticFeedback.impactOccurred('medium');
-
-            // Tap Animation
+            
             const touch = e.touches[0];
             const anim = document.createElement('div');
             anim.className = 'tap-anim';
@@ -121,7 +87,6 @@
             setTimeout(() => anim.remove(), 600);
         });
 
-        // Tabs Logic
         function showTab(tab, btn) {
             document.getElementById('game-view').style.display = (tab === 'game') ? 'flex' : 'none';
             document.getElementById('tasks-view').style.display = (tab === 'tasks') ? 'block' : 'none';
@@ -129,14 +94,9 @@
             btn.classList.add('active');
         }
 
-        // Task Logic
         function openTask(url, reward) {
             window.open(url, '_blank');
-            setTimeout(() => {
-                score += reward;
-                updateUI();
-                alert('مبروك! تم إضافة ' + reward + ' نقطة لرصيدك الملكي.');
-            }, 2000);
+            setTimeout(() => { score += reward; updateUI(); alert('تمت إضافة الجائزة!'); }, 2000);
         }
 
         updateUI();
