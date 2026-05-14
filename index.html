@@ -2,50 +2,192 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tiko World</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TIKO WORLD - PRO</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        :root {
+            --gold: #D4AF37;
+            --dark: #000000;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
         body {
-            background-color: #0a0a0a; /* أسود عميق */
-            color: #d4af37; /* ذهبي ملكي */
-            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--dark);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             height: 100vh;
-            margin: 0;
+            overflow: hidden;
+            user-select: none;
         }
-        .container {
+        .header {
+            margin-top: 20px;
             text-align: center;
-            border: 2px solid #d4af37;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
         }
-        .tap-btn {
-            background: radial-gradient(circle, #d4af37 0%, #8a6d3b 100%);
-            width: 150px;
-            height: 150px;
+        .score-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 40px;
+            font-weight: bold;
+            color: var(--gold);
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+        .coin-wrapper {
+            position: relative;
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+        .main-coin {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, #f1c40f, #d4af37);
             border-radius: 50%;
-            border: none;
+            box-shadow: 0 0 50px rgba(212, 175, 55, 0.6), inset 0 0 20px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+            transition: transform 0.1s ease;
+            border: 8px solid #b8860b;
+        }
+        .main-coin:active {
+            transform: scale(0.95);
+        }
+        .coin-logo {
+            font-size: 80px;
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.5));
+        }
+        .energy-container {
+            width: 80%;
+            margin-bottom: 40px;
+        }
+        .energy-bar {
+            width: 100%;
+            height: 12px;
+            background: var(--glass);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--gold);
+        }
+        .energy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), #fff);
+            width: 100%;
+            transition: width 0.2s;
+        }
+        .energy-text {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            color: var(--gold);
+            font-weight: bold;
+        }
+        /* Floating Text Animation */
+        .plus-one {
+            position: absolute;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            animation: floatUp 1s forwards;
+            pointer-events: none;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-100px); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>TIKO WORLD</h1>
-        <div id="score" style="font-size: 2rem; margin: 20px;">Coins: 0</div>
-        <button class="tap-btn" onclick="tap()"></button>
+
+    <div class="header">
+        <h2 style="color: var(--gold); margin: 0;">TIKO WORLD</h2>
+        <div class="score-container">
+            <span id="score">0</span>
+        </div>
     </div>
+
+    <div class="coin-wrapper">
+        <div class="main-coin" id="coinBtn">
+            <span class="coin-logo">👑</span>
+        </div>
+    </div>
+
+    <div class="energy-container">
+        <div class="energy-bar">
+            <div class="energy-fill" id="energyFill"></div>
+        </div>
+        <div class="energy-text">
+            <span>⚡ Energy</span>
+            <span id="energyText">1000 / 1000</span>
+        </div>
+    </div>
+
     <script>
-        let count = 0;
-        function tap() {
-            count++;
-            document.getElementById('score').innerText = "Coins: " + count;
+        let score = parseInt(localStorage.getItem('tiko_score')) || 0;
+        let energy = parseInt(localStorage.getItem('tiko_energy')) || 1000;
+        const maxEnergy = 1000;
+
+        const scoreEl = document.getElementById('score');
+        const coinBtn = document.getElementById('coinBtn');
+        const energyFill = document.getElementById('energyFill');
+        const energyText = document.getElementById('energyText');
+
+        // Initial Update
+        scoreEl.innerText = score.toLocaleString();
+        updateEnergyUI();
+
+        coinBtn.addEventListener('click', (e) => {
+            if (energy > 0) {
+                // Update Logic
+                score++;
+                energy--;
+                scoreEl.innerText = score.toLocaleString();
+                updateEnergyUI();
+                
+                // Save to Storage
+                localStorage.setItem('tiko_score', score);
+                localStorage.setItem('tiko_energy', energy);
+
+                // Create Floating Text
+                createPlusOne(e.clientX, e.clientY);
+                
+                // Haptic Feedback
+                if (window.Telegram.WebApp.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+                }
+            }
+        });
+
+        function updateEnergyUI() {
+            const percent = (energy / maxEnergy) * 100;
+            energyFill.style.width = percent + '%';
+            energyText.innerText = `${energy} / ${maxEnergy}`;
         }
+
+        function createPlusOne(x, y) {
+            const plus = document.createElement('div');
+            plus.innerText = '+1';
+            plus.className = 'plus-one';
+            plus.style.left = x + 'px';
+            plus.style.top = y + 'px';
+            document.body.appendChild(plus);
+            setTimeout(() => plus.remove(), 1000);
+        }
+
+        // Energy Recovery
+        setInterval(() => {
+            if (energy < maxEnergy) {
+                energy++;
+                updateEnergyUI();
+                localStorage.setItem('tiko_energy', energy);
+            }
+        }, 1500);
+
+        window.Telegram.WebApp.expand();
     </script>
 </body>
 </html>
