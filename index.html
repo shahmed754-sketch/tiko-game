@@ -1,105 +1,833 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TIKO WORLD | تيكو وورلد</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root { --gold: #D4AF37; --bg: #0d0d0d; --card: #1a1a1a; }
-        body { background-color: var(--bg); color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; user-select: none; }
-        .header { display: flex; justify-content: space-around; padding: 15px; background: #111; border-bottom: 1px solid #333; }
-        .header-item { background: var(--card); border: 1px solid var(--gold); border-radius: 12px; padding: 10px; flex: 1; text-align: center; margin: 0 5px; color: var(--gold); font-weight: bold; }
-        .content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        #game-view { display: flex; flex-direction: column; align-items: center; width: 100%; }
-        .score-title { font-size: 60px; font-weight: bold; color: var(--gold); text-shadow: 0 0 20px rgba(212, 175, 55, 0.5); margin: 10px 0; }
-        .rabbit-main { width: 200px; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 0 15px var(--gold)); }
-        .rabbit-main:active { transform: scale(0.92); }
-        #tasks-view { display: none; width: 100%; padding: 20px; box-sizing: border-box; overflow-y: auto; }
-        .task-card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 10px; border-right: 5px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
-        .task-btn { background: var(--gold); color: black; border: none; border-radius: 8px; padding: 8px 15px; font-weight: bold; cursor: pointer; }
-        .nav-bar { display: flex; justify-content: space-around; background: #000; padding: 15px 0; border-top: 2px solid var(--gold); }
-        .nav-btn { text-align: center; color: #666; font-size: 12px; flex: 1; cursor: pointer; }
-        .nav-btn.active { color: var(--gold); }
-        .tap-anim { position: absolute; color: var(--gold); font-weight: bold; font-size: 26px; pointer-events: none; animation: fadeUp 0.6s ease-out forwards; }
-        @keyframes fadeUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
-    </style>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TIKO WORLD</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+
+:root{
+--gold:#ffd369;
+--bg:#070707;
+--glass:rgba(255,255,255,.06);
+--border:rgba(255,215,120,.3);
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:
+radial-gradient(circle at top,#3b2900 0%,#070707 50%);
+font-family:'Tajawal',sans-serif;
+color:white;
+overflow:hidden;
+height:100vh;
+}
+
+/* SPLASH */
+
+#splash{
+position:fixed;
+inset:0;
+background:black;
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+z-index:9999;
+transition:1s;
+}
+
+#splash h1{
+font-size:60px;
+color:var(--gold);
+margin-top:20px;
+text-shadow:0 0 20px gold;
+}
+
+#splashRabbit{
+font-size:140px;
+animation:float 2s infinite ease-in-out;
+}
+
+/* APP */
+
+.app{
+height:100vh;
+padding:14px;
+display:flex;
+flex-direction:column;
+}
+
+/* HEADER */
+
+.top{
+display:flex;
+gap:10px;
+}
+
+.card{
+flex:1;
+background:var(--glass);
+border:1px solid var(--border);
+border-radius:22px;
+padding:14px;
+text-align:center;
+backdrop-filter:blur(14px);
+
+box-shadow:
+0 0 20px rgba(255,200,50,.08),
+inset 0 0 20px rgba(255,255,255,.03);
+}
+
+.card span{
+color:var(--gold);
+font-weight:800;
+font-size:22px;
+}
+
+/* PROFILE */
+
+.profile{
+margin-top:12px;
+display:flex;
+align-items:center;
+gap:12px;
+background:var(--glass);
+padding:12px;
+border-radius:20px;
+border:1px solid var(--border);
+}
+
+.avatar{
+width:50px;
+height:50px;
+border-radius:50%;
+background:gold;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:24px;
+color:black;
+font-weight:bold;
+}
+
+.user-info{
+flex:1;
+}
+
+.username{
+font-weight:800;
+font-size:18px;
+}
+
+.userid{
+font-size:13px;
+opacity:.7;
+}
+
+/* DAILY */
+
+.reward{
+margin-top:14px;
+background:rgba(255,255,255,.05);
+border:1px dashed rgba(255,215,100,.6);
+padding:18px;
+border-radius:20px;
+text-align:center;
+font-size:20px;
+cursor:pointer;
+}
+
+/* GAME */
+
+.game{
+flex:1;
+margin-top:16px;
+
+background:
+linear-gradient(
+145deg,
+rgba(255,255,255,.08),
+rgba(255,255,255,.02));
+
+border-radius:30px;
+border:1px solid rgba(255,215,100,.3);
+
+position:relative;
+
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+
+overflow:hidden;
+
+box-shadow:
+0 0 45px rgba(255,200,50,.08);
+}
+
+/* PARTICLES */
+
+.particle{
+position:absolute;
+width:220px;
+height:220px;
+background:rgba(255,215,100,.08);
+filter:blur(70px);
+border-radius:50%;
+animation:move 8s infinite alternate;
+}
+
+.particle:nth-child(1){
+top:-40px;
+left:-50px;
+}
+
+.particle:nth-child(2){
+bottom:-60px;
+right:-40px;
+}
+
+@keyframes move{
+0%{transform:translate(0,0)}
+100%{transform:translate(40px,20px)}
+}
+
+/* SCORE */
+
+.score{
+font-size:65px;
+font-weight:800;
+color:var(--gold);
+
+text-shadow:
+0 0 18px rgba(255,215,100,.8);
+
+margin-bottom:10px;
+}
+
+/* LEVEL */
+
+.level{
+font-size:20px;
+margin-bottom:20px;
+}
+
+/* XP */
+
+.bar{
+width:80%;
+height:14px;
+background:#222;
+border-radius:20px;
+overflow:hidden;
+margin-bottom:25px;
+}
+
+.fill{
+height:100%;
+width:0%;
+background:linear-gradient(90deg,gold,#ffe08a);
+transition:.3s;
+}
+
+/* RABBIT */
+
+.rabbit{
+font-size:170px;
+cursor:pointer;
+
+filter:
+drop-shadow(0 0 30px rgba(255,220,120,.8));
+
+transition:.1s;
+
+animation:rabbitFloat 3s infinite ease-in-out;
+}
+
+.rabbit:active{
+transform:scale(.92);
+}
+
+/* ENERGY */
+
+.energy{
+margin-top:20px;
+font-size:20px;
+}
+
+/* FLOATING CARROTS */
+
+.carrot{
+position:absolute;
+font-size:26px;
+opacity:.6;
+animation:float 5s infinite ease-in-out;
+}
+
+.c1{top:15%;left:10%;}
+.c2{top:20%;right:12%;}
+.c3{bottom:20%;left:16%;}
+.c4{bottom:16%;right:15%;}
+
+/* FLOAT TEXT */
+
+.floatText{
+position:absolute;
+color:gold;
+font-size:28px;
+font-weight:bold;
+pointer-events:none;
+animation:up 1s forwards;
+}
+
+@keyframes up{
+from{
+opacity:1;
+transform:translateY(0);
+}
+to{
+opacity:0;
+transform:translateY(-80px);
+}
+}
+
+/* NAVBAR */
+
+.navbar{
+margin-top:14px;
+
+background:rgba(255,255,255,.05);
+
+border-radius:25px;
+
+border:1px solid rgba(255,215,100,.2);
+
+backdrop-filter:blur(15px);
+
+display:flex;
+justify-content:space-around;
+
+padding:14px 0;
+}
+
+.nav-item{
+text-align:center;
+font-size:14px;
+color:#aaa;
+}
+
+.nav-item.active{
+color:var(--gold);
+font-weight:800;
+}
+
+.nav-icon{
+display:block;
+font-size:28px;
+margin-bottom:5px;
+}
+
+/* PAGES */
+
+.page{
+display:none;
+height:100%;
+}
+
+.active{
+display:flex;
+flex-direction:column;
+}
+
+/* SHOP */
+
+.shop-item{
+background:var(--glass);
+border:1px solid var(--border);
+padding:16px;
+border-radius:18px;
+margin-bottom:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.buy-btn{
+background:gold;
+border:none;
+padding:10px 18px;
+border-radius:12px;
+font-weight:bold;
+cursor:pointer;
+}
+
+/* TASKS */
+
+.task{
+background:var(--glass);
+padding:15px;
+border-radius:18px;
+margin-bottom:12px;
+border:1px solid var(--border);
+}
+
+/* ANIMATIONS */
+
+@keyframes rabbitFloat{
+0%{transform:translateY(0)}
+50%{transform:translateY(-10px)}
+100%{transform:translateY(0)}
+}
+
+@keyframes float{
+0%{transform:translateY(0)}
+50%{transform:translateY(-15px)}
+100%{transform:translateY(0)}
+}
+
+</style>
+
 </head>
+
 <body>
 
-    <div class="header">
-        <div class="header-item">الترتيب: #120</div>
-        <div class="header-item">الجزر: <span id="carrots">0</span> 🥕</div>
-    </div>
+<!-- SPLASH -->
 
-    <div class="content">
-        <div id="game-view">
-            <p style="color: #888; margin: 0;">رصيد TIKO الخاص بك</p>
-            <h1 class="score-title" id="tiko-val">0</h1>
-            <!-- رابط صورة جديد وموثوق -->
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Tiko&backgroundColor=ffd700" class="rabbit-main" id="tap-rabbit" alt="Tiko">
-        </div>
+<div id="splash">
+<div id="splashRabbit">🐰</div>
+<h1>TIKO WORLD</h1>
+</div>
 
-        <div id="tasks-view">
-            <h2 style="color: var(--gold); text-align: center;">المهام اليومية</h2>
-            <div class="task-card">
-                <div><b>TikTok</b><br><small>+1,000 TIKO</small></div>
-                <button class="task-btn" onclick="openTask('https://tiktok.com', 1000)">ابدأ</button>
-            </div>
-            <div class="task-card">
-                <div><b>Telegram</b><br><small>+500 TIKO</small></div>
-                <button class="task-btn" onclick="openTask('https://t.me', 500)">انضم</button>
-            </div>
-        </div>
-    </div>
+<div class="app">
 
-    <div class="nav-bar">
-        <div class="nav-btn active" onclick="showTab('game', this)">🏠<br>الرئيسية</div>
-        <div class="nav-btn" onclick="showTab('tasks', this)">📋<br>المهام</div>
-        <div class="nav-btn">🔄<br>تبادل</div>
-        <div class="nav-btn">📢<br>إعلانات</div>
-    </div>
+<!-- HEADER -->
 
-    <script>
-        let score = parseInt(localStorage.getItem('tiko_score')) || 0;
-        const webapp = window.Telegram.WebApp;
-        webapp.expand();
+<div class="top">
 
-        function updateUI() {
-            document.getElementById('tiko-val').innerText = score.toLocaleString();
-            document.getElementById('carrots').innerText = Math.floor(score / 10);
-            localStorage.setItem('tiko_score', score);
-        }
+<div class="card">
+🥕 الجزر:
+<span id="carrots">0</span>
+</div>
 
-        document.getElementById('tap-rabbit').addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            score++;
-            updateUI();
-            if(webapp.HapticFeedback) webapp.HapticFeedback.impactOccurred('medium');
-            
-            const touch = e.touches[0];
-            const anim = document.createElement('div');
-            anim.className = 'tap-anim';
-            anim.innerText = '+1';
-            anim.style.left = touch.pageX + 'px';
-            anim.style.top = touch.pageY + 'px';
-            document.body.appendChild(anim);
-            setTimeout(() => anim.remove(), 600);
-        });
+<div class="card">
+🏆 المستوى:
+<span id="level">1</span>
+</div>
 
-        function showTab(tab, btn) {
-            document.getElementById('game-view').style.display = (tab === 'game') ? 'flex' : 'none';
-            document.getElementById('tasks-view').style.display = (tab === 'tasks') ? 'block' : 'none';
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
+</div>
 
-        function openTask(url, reward) {
-            window.open(url, '_blank');
-            setTimeout(() => { score += reward; updateUI(); alert('تمت إضافة الجائزة!'); }, 2000);
-        }
+<!-- PROFILE -->
 
-        updateUI();
-    </script>
+<div class="profile">
+
+<div class="avatar" id="avatar">
+T
+</div>
+
+<div class="user-info">
+<div class="username" id="username">
+Player
+</div>
+
+<div class="userid" id="userid">
+ID: 0000
+</div>
+</div>
+
+</div>
+
+<!-- DAILY -->
+
+<div class="reward" id="dailyBtn">
+🎁 مكافأة يومية مجانية
+</div>
+
+<!-- GAME PAGE -->
+
+<div id="gamePage" class="page active">
+
+<div class="game">
+
+<div class="particle"></div>
+<div class="particle"></div>
+
+<div class="carrot c1">🥕</div>
+<div class="carrot c2">🥕</div>
+<div class="carrot c3">🥕</div>
+<div class="carrot c4">🥕</div>
+
+<div class="score">
+<span id="score">0</span> TIKO
+</div>
+
+<div class="level">
+Level <span id="levelText">1</span>
+</div>
+
+<div class="bar">
+<div class="fill" id="xpFill"></div>
+</div>
+
+<div class="rabbit" id="rabbit">
+🐰
+</div>
+
+<div class="energy">
+⚡ <span id="energy">500</span>/500
+</div>
+
+</div>
+
+</div>
+
+<!-- SHOP -->
+
+<div id="shopPage" class="page">
+
+<div class="shop-item">
+🚀 Turbo Boost
+<button class="buy-btn" onclick="buyBoost(100)">
+100
+</button>
+</div>
+
+<div class="shop-item">
+⚡ Energy Refill
+<button class="buy-btn" onclick="buyEnergy(50)">
+50
+</button>
+</div>
+
+</div>
+
+<!-- TASKS -->
+
+<div id="taskPage" class="page">
+
+<div class="task">
+📢 انضم للقناة واربح 1000
+</div>
+
+<div class="task">
+👥 ادعُ 3 أصدقاء
+</div>
+
+</div>
+
+<!-- NAV -->
+
+<div class="navbar">
+
+<div class="nav-item active" onclick="showPage('gamePage',this)">
+<span class="nav-icon">🎮</span>
+اللعبة
+</div>
+
+<div class="nav-item" onclick="showPage('shopPage',this)">
+<span class="nav-icon">🛒</span>
+المتجر
+</div>
+
+<div class="nav-item" onclick="showPage('taskPage',this)">
+<span class="nav-icon">📋</span>
+المهام
+</div>
+
+<div class="nav-item">
+<span class="nav-icon">👥</span>
+الأصدقاء
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+/* SPLASH */
+
+setTimeout(()=>{
+
+splash.style.opacity="0";
+
+setTimeout(()=>{
+splash.remove();
+},1000);
+
+},2000);
+
+/* USER */
+
+const tg = window.Telegram.WebApp;
+
+tg.expand();
+
+if(tg.requestFullscreen){
+tg.requestFullscreen();
+}
+
+let user = tg.initDataUnsafe?.user;
+
+if(user){
+
+document.getElementById("username").innerText =
+user.first_name;
+
+document.getElementById("userid").innerText =
+"ID: " + user.id;
+
+document.getElementById("avatar").innerText =
+user.first_name[0];
+
+}
+
+/* DATA */
+
+let score =
+parseInt(localStorage.getItem("score")) || 0;
+
+let carrots =
+parseInt(localStorage.getItem("carrots")) || 0;
+
+let level =
+parseInt(localStorage.getItem("level")) || 1;
+
+let energy =
+parseInt(localStorage.getItem("energy")) || 500;
+
+let tapCooldown = false;
+
+const maxEnergy = 500;
+
+/* ELEMENTS */
+
+const rabbit =
+document.getElementById("rabbit");
+
+const scoreEl =
+document.getElementById("score");
+
+const carrotsEl =
+document.getElementById("carrots");
+
+const levelEl =
+document.getElementById("level");
+
+const energyEl =
+document.getElementById("energy");
+
+const levelText =
+document.getElementById("levelText");
+
+const xpFill =
+document.getElementById("xpFill");
+
+/* UPDATE */
+
+function updateUI(){
+
+scoreEl.innerText =
+score.toLocaleString();
+
+carrotsEl.innerText =
+carrots.toLocaleString();
+
+levelEl.innerText = level;
+
+levelText.innerText = level;
+
+energyEl.innerText = energy;
+
+let xp = score % 1000;
+
+xpFill.style.width =
+(xp/1000)*100 + "%";
+
+localStorage.setItem("score",score);
+localStorage.setItem("carrots",carrots);
+localStorage.setItem("level",level);
+localStorage.setItem("energy",energy);
+
+}
+
+/* TAP */
+
+rabbit.addEventListener("click",(e)=>{
+
+if(tapCooldown) return;
+
+tapCooldown = true;
+
+setTimeout(()=>{
+tapCooldown = false;
+},40);
+
+if(energy <= 0) return;
+
+score++;
+carrots++;
+energy--;
+
+level =
+Math.floor(score/1000)+1;
+
+updateUI();
+
+createFloat("+1",e);
+
+if(tg.HapticFeedback){
+tg.HapticFeedback.impactOccurred('medium');
+}
+
+});
+
+/* FLOAT */
+
+function createFloat(text,e){
+
+const div =
+document.createElement("div");
+
+div.className="floatText";
+
+div.innerText=text;
+
+div.style.left =
+e.pageX + "px";
+
+div.style.top =
+e.pageY + "px";
+
+document.body.appendChild(div);
+
+setTimeout(()=>{
+div.remove();
+},1000);
+
+}
+
+/* ENERGY REGEN */
+
+setInterval(()=>{
+
+if(energy < maxEnergy){
+
+energy++;
+
+updateUI();
+
+}
+
+},1500);
+
+/* DAILY */
+
+document.getElementById("dailyBtn").onclick=()=>{
+
+const last =
+localStorage.getItem("daily");
+
+const now =
+Date.now();
+
+if(last && now-last < 86400000){
+
+alert("🎁 تمت المطالبة بالفعل");
+
+return;
+
+}
+
+score += 500;
+carrots += 500;
+
+localStorage.setItem("daily",now);
+
+updateUI();
+
+alert("🔥 +500 TIKO");
+
+};
+
+/* SHOP */
+
+function buyBoost(price){
+
+if(score < price){
+
+alert("❌ لا يوجد رصيد");
+
+return;
+
+}
+
+score -= price;
+
+score += 200;
+
+updateUI();
+
+alert("🚀 تم شراء Boost");
+
+}
+
+function buyEnergy(price){
+
+if(score < price){
+
+alert("❌ لا يوجد رصيد");
+
+return;
+
+}
+
+score -= price;
+
+energy = maxEnergy;
+
+updateUI();
+
+alert("⚡ تم شحن الطاقة");
+
+}
+
+/* PAGES */
+
+function showPage(id,el){
+
+document
+.querySelectorAll(".page")
+.forEach(p=>p.classList.remove("active"));
+
+document
+.querySelectorAll(".nav-item")
+.forEach(n=>n.classList.remove("active"));
+
+document
+.getElementById(id)
+.classList.add("active");
+
+el.classList.add("active");
+
+}
+
+updateUI();
+
+</script>
+
 </body>
 </html>
